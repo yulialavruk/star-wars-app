@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+import Typography from "@material-ui/core/Typography";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
 
 export const Profile = ({ match: { params } }) => {
   const [data, setData] = useState([]);
@@ -90,14 +94,51 @@ export const Profile = ({ match: { params } }) => {
     getPeople();
   }, []);
 
+  function createData(item, value) {
+    return { item, value };
+  }
+
+  const rows = [
+    createData("height", data.height),
+    createData("mass", data.mass),
+    createData("hair_color", data.hair_color),
+    createData("skin_color", data.skin_color),
+    createData("eye_color", data.eye_color),
+    createData("birth_year", data.birth_year),
+    createData("gender", data.gender),
+    createData("homeworld", data.homeworld),
+    createData(
+      "vehicles",
+      data.vehicles &&
+        data.vehicles.map((item, index) => (
+          <p key={index}>
+            {item.name}: {item.model}
+          </p>
+        ))
+    ),
+    createData(
+      "films",
+      data.films && data.films.map((item, index) => <p key={index}>{item}</p>)
+    ),
+  ];
+
   return (
-    <List>
-      <ListItem>
-        <ListItemText
-          primary="Single-line item"
-          // secondary={secondary ? "Secondary text" : null}
-        />
-      </ListItem>
-    </List>
+    <TableContainer component={Paper}>
+      <Typography gutterBottom variant="h5" component="h2" align="center">
+        {data.name}
+      </Typography>
+      <Table className="" aria-label="simple table">
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.item + row.value}>
+              <TableCell component="th" scope="row">
+                {row.item}
+              </TableCell>
+              <TableCell align="right">{row.value}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };

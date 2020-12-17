@@ -1,24 +1,29 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+// import Autocomplete from "@material-ui/lab/Autocomplete";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import Pagination from "@material-ui/lab/Pagination";
 
 export const Home = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
 
   useEffect(() => {
     const getPeople = () => {
       setIsLoading(true);
 
-      fetch("https://swapi.dev/api/people/")
+      fetch(`https://swapi.dev/api/people/?page=${page}`)
         .then((response) => {
           if (response.ok === false) {
             throw new Error("error");
@@ -26,7 +31,7 @@ export const Home = () => {
             return response.json();
           }
         })
-        .then(({ results }) => {
+        .then(({ results, count }) => {
           let promises = [];
           results.map((item) => {
             return promises.push(
@@ -46,6 +51,7 @@ export const Home = () => {
           Promise.all(promises)
             .then(() => {
               setData(results);
+              setCount(Math.ceil(count / 10));
               setIsLoading(false);
             })
             .catch((error) => {
@@ -62,7 +68,7 @@ export const Home = () => {
     };
 
     getPeople();
-  }, []);
+  }, [page]);
 
   return (
     <Grid container spacing={2}>
@@ -95,6 +101,12 @@ export const Home = () => {
           </Card>
         </Grid>
       ))}
+      <Pagination
+        count={count}
+        shape="rounded"
+        page={page}
+        onChange={handleChange}
+      />
     </Grid>
   );
 };
