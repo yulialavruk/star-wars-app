@@ -14,7 +14,6 @@ export const AutocompleteByCharacters = () => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  // const loading = open && options.length === 0 && inputValue === "";
   const [isLoading, setIsLoading] = useState(false);
 
   const onInputChange = (e) => {
@@ -49,7 +48,6 @@ export const AutocompleteByCharacters = () => {
     })();
 
     return () => {
-      console.log("bla");
       active = false;
     };
   }, [inputValue]);
@@ -74,7 +72,9 @@ export const AutocompleteByCharacters = () => {
       getOptionLabel={(option) => option.name}
       options={options}
       renderOption={(option) => (
-        <Link to={`/profile/${option.url.match(/\d+/)}`}>{option.name}</Link>
+        <Link to={`/profile/${option.url.split("/people/")[1]}`}>
+          {option.name}
+        </Link>
       )}
       loading={isLoading}
       renderInput={(params) => (

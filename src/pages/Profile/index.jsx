@@ -1,20 +1,15 @@
 import { useState, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
+import { TableParameter } from "./Table";
 import { API_URL } from "../../api/api";
 
 export const Profile = ({ match: { params } }) => {
-  const [data, setData] = useState([]);
+  const [person, setPerson] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    const getPeople = () => {
+    const getPerson = () => {
       setIsLoading(true);
       fetch(`${API_URL}people/${params.id}/`)
         .then((response) => {
@@ -25,65 +20,8 @@ export const Profile = ({ match: { params } }) => {
           }
         })
         .then((data) => {
-          let promises = [];
-          let films = [];
-          let vehicles = [];
-          data.films.forEach((item) => {
-            promises.push(
-              fetch(item)
-                .then((response) => {
-                  if (response.ok === false) {
-                    throw new Error("error");
-                  } else {
-                    return response.json();
-                  }
-                })
-                .then(({ title }) => {
-                  return films.push(title);
-                })
-            );
-          });
-          data.vehicles.forEach((item) => {
-            promises.push(
-              fetch(item)
-                .then((response) => {
-                  if (response.ok === false) {
-                    throw new Error("error");
-                  } else {
-                    return response.json();
-                  }
-                })
-                .then(({ name, model }) => {
-                  return vehicles.push({ name, model });
-                })
-            );
-          });
-          promises.push(
-            fetch(data.homeworld)
-              .then((response) => {
-                if (response.ok === false) {
-                  throw new Error("error");
-                } else {
-                  return response.json();
-                }
-              })
-              .then(({ name }) => {
-                return (data.homeworld = name);
-              })
-          );
-
-          Promise.all(promises)
-            .then(() => {
-              data.films = films;
-              data.vehicles = vehicles;
-              setData(data);
-              setIsLoading(false);
-            })
-            .catch((error) => {
-              setIsLoading(false);
-              setIsError(true);
-              console.log(error);
-            });
+          setPerson(data);
+          setIsLoading(false);
         })
         .catch((error) => {
           setIsLoading(false);
@@ -92,56 +30,24 @@ export const Profile = ({ match: { params } }) => {
         });
     };
 
-    getPeople();
-  }, []);
+    getPerson();
+  }, [params.id]);
 
-  function createData(item, value) {
-    return { item, value };
-  }
-
-  const rows = [
-    createData("height", data.height),
-    createData("mass", data.mass),
-    createData("hair_color", data.hair_color),
-    createData("skin_color", data.skin_color),
-    createData("eye_color", data.eye_color),
-    createData("birth_year", data.birth_year),
-    createData("gender", data.gender),
-    createData("homeworld", data.homeworld),
-    createData(
-      "vehicles",
-      data.vehicles &&
-        data.vehicles.map((item, index) => (
-          <p key={index}>
-            {item.name}: {item.model}
-          </p>
-        ))
-    ),
-    createData(
-      "films",
-      data.films && data.films.map((item, index) => <p key={index}>{item}</p>)
-    ),
-  ];
-
-  return isLoading ? (
-    <p>Loading...</p>
-  ) : (
-    <TableContainer component={Paper}>
-      <Typography gutterBottom variant="h5" component="h2" align="center">
-        {data.name}
-      </Typography>
-      <Table className="" aria-label="simple table">
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.item + row.value}>
-              <TableCell component="th" scope="row">
-                {row.item}
-              </TableCell>
-              <TableCell align="right">{row.value}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
+  return (() => {
+    if (isLoading) {
+      return "Loading...";
+    }
+    if (isError) {
+      return "Failed to load data";
+    } else {
+      return (
+        <>
+          <Typography gutterBottom variant="h5" component="h2" align="center">
+            {person.name}
+          </Typography>
+          <TableParameter person={person} />
+        </>
+      );
+    }
+  })();
 };
