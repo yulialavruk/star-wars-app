@@ -1,23 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
-import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
+import { CardItem } from "./CardItem";
 import Pagination from "@material-ui/lab/Pagination";
 import { API_URL } from "../../api/api";
 import { AutocompleteByCharacters } from "./Autocomplete";
 
 export const Home = () => {
-  const [data, setData] = useState([]);
+  const [people, setPeople] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
-  const handleChange = (event, value) => {
-    setPage(value);
-  };
 
   useEffect(() => {
     const getPeople = () => {
@@ -32,34 +25,9 @@ export const Home = () => {
           }
         })
         .then(({ results, count }) => {
-          let promises = [];
-          results.map((item) => {
-            const path = `${API_URL}${item.homeworld.split("/api/")[1]}`;
-            return promises.push(
-              fetch(path)
-                .then((response) => {
-                  if (response.ok === false) {
-                    throw new Error("error");
-                  } else {
-                    return response.json();
-                  }
-                })
-                .then(({ name }) => {
-                  return (item.homeworld = name);
-                })
-            );
-          });
-          Promise.all(promises)
-            .then(() => {
-              setData(results);
-              setCount(Math.ceil(count / 10));
-              setIsLoading(false);
-            })
-            .catch((error) => {
-              setIsLoading(false);
-              setIsError(true);
-              console.log(error);
-            });
+          setPeople(results);
+          setCount(Math.ceil(count / 10));
+          setIsLoading(false);
         })
         .catch((error) => {
           setIsLoading(false);
@@ -71,46 +39,31 @@ export const Home = () => {
     getPeople();
   }, [page]);
 
-  return (
-    <>
-      <AutocompleteByCharacters />
-      <Grid container spacing={2}>
-        {data.map((item, index) => (
-          <Grid key={index} item xs={6}>
-            <Card className="">
-              <CardActionArea>
-                <Link to={`/profile/${item.url.match(/\d+/)}`}>
-                  <CardContent>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {item.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
-                      gender: {item.gender}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
-                      homeworld: {item.homeworld}
-                    </Typography>
-                  </CardContent>
-                </Link>
-              </CardActionArea>
-            </Card>
+  return (() => {
+    if (isLoading) {
+      return "Loading...";
+    }
+    if (isError) {
+      return "Failed to load data";
+    } else {
+      return (
+        <>
+          <AutocompleteByCharacters />
+          <Grid container spacing={2}>
+            {people.map((person, index) => (
+              <Grid key={index} item xs={6}>
+                <CardItem person={person} />
+              </Grid>
+            ))}
+            <Pagination
+              count={count}
+              shape="rounded"
+              page={page}
+              onChange={(_, value) => setPage(value)}
+            />
           </Grid>
-        ))}
-        <Pagination
-          count={count}
-          shape="rounded"
-          page={page}
-          onChange={handleChange}
-        />
-      </Grid>
-    </>
-  );
+        </>
+      );
+    }
+  })();
 };
