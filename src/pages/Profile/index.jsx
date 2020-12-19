@@ -6,6 +6,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import { API_URL } from "../../api/api";
 
 export const Profile = ({ match: { params } }) => {
   const [data, setData] = useState([]);
@@ -15,7 +16,7 @@ export const Profile = ({ match: { params } }) => {
   useEffect(() => {
     const getPeople = () => {
       setIsLoading(true);
-      fetch(`https://swapi.dev/api/people/${params.id}/`)
+      fetch(`${API_URL}people/${params.id}/`)
         .then((response) => {
           if (response.ok === false) {
             throw new Error("error");
@@ -122,7 +123,9 @@ export const Profile = ({ match: { params } }) => {
     ),
   ];
 
-  return (
+  return isLoading ? (
+    <p>Loading...</p>
+  ) : (
     <TableContainer component={Paper}>
       <Typography gutterBottom variant="h5" component="h2" align="center">
         {data.name}
