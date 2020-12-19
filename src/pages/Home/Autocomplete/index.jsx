@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { API_URL } from "../../../api/api";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import CircularProgress from "@material-ui/core/CircularProgress";
-
-// function sleep(delay = 0) {
-//   return new Promise((resolve) => {
-//     setTimeout(resolve, delay);
-//   });
-// }
 
 export const AutocompleteByCharacters = () => {
   const [open, setOpen] = useState(false);
@@ -16,40 +11,25 @@ export const AutocompleteByCharacters = () => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const onInputChange = (e) => {
-    setInputValue(e.target.value);
-  };
-
   useEffect(() => {
-    let active = true;
-
     if (inputValue === "") {
       setIsLoading(false);
       setOptions([]);
-      return undefined;
+      return;
     }
 
     (async () => {
       setIsLoading(true);
-      const response = await fetch(
-        `https://swapi.dev/api/people/?search=${inputValue}`
-      );
-      // await sleep(1e3); // For demo purposes.
+      const response = await fetch(`${API_URL}people/?search=${inputValue}`);
       const { results } = await response.json();
 
-      if (active) {
-        setOptions(
-          results.map((item) => {
-            return { name: item.name, url: item.url };
-          })
-        );
-        setIsLoading(false);
-      }
+      setOptions(
+        results.map((item) => {
+          return { name: item.name, url: item.url };
+        })
+      );
+      setIsLoading(false);
     })();
-
-    return () => {
-      active = false;
-    };
   }, [inputValue]);
 
   useEffect(() => {
@@ -69,6 +49,8 @@ export const AutocompleteByCharacters = () => {
       onClose={() => {
         setOpen(false);
       }}
+      autoHighlight
+      getOptionSelected={(option, value) => option.name === value.name}
       getOptionLabel={(option) => option.name}
       options={options}
       renderOption={(option) => (
@@ -83,7 +65,9 @@ export const AutocompleteByCharacters = () => {
           label="Search"
           variant="outlined"
           value={inputValue}
-          onChange={onInputChange}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+          }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
