@@ -17,11 +17,10 @@ export const CardItem = ({ person }) => {
 
       fetch(`${API_URL}planets/${person.homeworld.split("/planets/")[1]}`)
         .then((response) => {
-          if (response.ok === false) {
+          if (!response.ok) {
             throw new Error("error");
-          } else {
-            return response.json();
           }
+          return response.json();
         })
         .then(({ name }) => {
           setHomeworld(name);

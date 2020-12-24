@@ -5,27 +5,26 @@ import { API_URL } from "../../api/api";
 
 export const Profile = ({ match: { params } }) => {
   const [person, setPerson] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const [isPersonLoading, setIsPersonLoading] = useState(true);
+  const [isPersonError, setIsPersonError] = useState(false);
 
   useEffect(() => {
     const getPerson = () => {
-      setIsLoading(true);
+      setIsPersonLoading(true);
       fetch(`${API_URL}people/${params.id}/`)
         .then((response) => {
-          if (response.ok === false) {
+          if (!response.ok) {
             throw new Error("error");
-          } else {
-            return response.json();
           }
+          return response.json();
         })
         .then((data) => {
           setPerson(data);
-          setIsLoading(false);
+          setIsPersonLoading(false);
         })
         .catch((error) => {
-          setIsLoading(false);
-          setIsError(true);
+          setIsPersonLoading(false);
+          setIsPersonError(true);
           console.log(error);
         });
     };
@@ -33,21 +32,20 @@ export const Profile = ({ match: { params } }) => {
     getPerson();
   }, [params.id]);
 
-  return (() => {
-    if (isLoading) {
-      return "Loading...";
-    }
-    if (isError) {
-      return "Failed to load data";
-    } else {
-      return (
-        <>
-          <Typography gutterBottom variant="h5" component="h2" align="center">
-            {person.name}
-          </Typography>
-          <TableParameter person={person} />
-        </>
-      );
-    }
-  })();
+  if (isPersonLoading) {
+    return "Loading...";
+  }
+
+  if (isPersonError) {
+    return "Failed to load data";
+  }
+
+  return (
+    <>
+      <Typography gutterBottom variant="h5" component="h2" align="center">
+        {person.name}
+      </Typography>
+      <TableParameter person={person} />
+    </>
+  );
 };
