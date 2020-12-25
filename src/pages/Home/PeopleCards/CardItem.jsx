@@ -3,7 +3,7 @@ import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-import { HomeworldView } from "./HomeworldView";
+import { HomeworldView } from "../../../components/HomeworldView";
 
 export const CardItem = ({ person }) => {
   const url = `/profile/${person.url?.split("/people/")[1]}`;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_URL } from "../../../api/api";
+import { API_URL } from "../api/api";
 
 export const HomeworldView = ({ homeworld }) => {
   const [planet, setPlanet] = useState("");
