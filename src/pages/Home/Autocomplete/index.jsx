@@ -41,7 +41,7 @@ export const AutocompleteByCharacters = () => {
   return (
     <Autocomplete
       id="asynchronous-demo"
-      style={{ width: 300, textAlign: "center", margin: "20px auto" }}
+      style={{ width: 300, textAlign: "center", margin: "10px auto" }}
       open={open}
       onOpen={() => {
         setOpen(true);

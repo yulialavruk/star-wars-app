@@ -7,9 +7,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Container maxWidth="md">
-        <Route exact path="/">
-          <Home />
-        </Route>
+        <Route exact path="/" component={Home} />
         <Route path="/profile/:id" component={Profile} />
       </Container>
     </BrowserRouter>
