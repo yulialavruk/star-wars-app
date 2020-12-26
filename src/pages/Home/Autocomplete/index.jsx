@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useDebounce } from "./useDebounce";
 import { API_URL } from "../../../api/api";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -9,28 +10,32 @@ export const AutocompleteByCharacters = () => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const debouncedSearchTerm = useDebounce(inputValue, 500);
 
   useEffect(() => {
-    if (inputValue === "") {
-      setIsLoading(false);
+    if (debouncedSearchTerm) {
+      setIsSearchLoading(true);
+
+      const getSearchPeople = async () => {
+        const response = await fetch(
+          `${API_URL}people/?search=${debouncedSearchTerm}`
+        );
+        const { results } = await response.json();
+
+        setOptions(
+          results.map((item) => {
+            return { name: item.name, url: item.url };
+          })
+        );
+        setIsSearchLoading(false);
+      };
+
+      getSearchPeople();
+    } else {
       setOptions([]);
-      return;
     }
-
-    (async () => {
-      setIsLoading(true);
-      const response = await fetch(`${API_URL}people/?search=${inputValue}`);
-      const { results } = await response.json();
-
-      setOptions(
-        results.map((item) => {
-          return { name: item.name, url: item.url };
-        })
-      );
-      setIsLoading(false);
-    })();
-  }, [inputValue]);
+  }, [debouncedSearchTerm]);
 
   useEffect(() => {
     if (!open) {
@@ -58,7 +63,7 @@ export const AutocompleteByCharacters = () => {
           {option.name}
         </Link>
       )}
-      loading={isLoading}
+      loading={isSearchLoading}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -72,7 +77,7 @@ export const AutocompleteByCharacters = () => {
             ...params.InputProps,
             endAdornment: (
               <>
-                {isLoading ? (
+                {isSearchLoading ? (
                   <CircularProgress color="inherit" size={20} />
                 ) : null}
                 {params.InputProps.endAdornment}
